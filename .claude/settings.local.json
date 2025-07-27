@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(del champion_rune_builder.py)",
+      "Bash(rm:*)",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:wiki.leagueoflegends.com)"
+    ],
+    "deny": []
+  }
+}
