@@ -119,8 +119,8 @@ class RuneDataModel:
             'Sudden Impact': 'After exiting stealth or using a dash, leap, blink, teleport, or when leaving terrain, deal 7 bonus magic penetration and 6 bonus lethality for 5 seconds.',
             
             # Domination Row 2
-            'Sixth Sense': 'Gain a shield when damaged by an enemy champion.',
-            'Grisly Mementos': 'Collect trophies when enemies die and gain permanent AD or AP.',
+            'Sixth Sense': 'Automatically tracks nearby untracked wards and, post-level 11, also reveals stealth wards for 10 seconds. It has a large cooldown: ~275 s (melee) / ~350 s (ranged).',
+            'Grisly Mementos': 'Grants up to 18 stacks from champion takedowns. Each stack gives +6 trinket haste. In game types without trinkets, each gives +3 summoner haste instead',
             'Deep Ward': 'Ward duration is increased. Gain movement speed near allied wards.',
             
             # Domination Row 3
@@ -128,7 +128,79 @@ class RuneDataModel:
             'Relentless Hunter': 'Gain 5 Move Speed plus an additional 8 Move Speed for each unique enemy champion takedown.',
             'Ultimate Hunter': 'Gain 6 Ability Haste plus an additional 5 Ability Haste for each unique enemy champion takedown.',
             
-            # Add more rune descriptions as needed...
+            # Sorcery Keystones
+            'Summon Aery': 'Attacks and abilities send Aery to a target, damaging enemies or shielding allies. Damage: 10–40 (+15% AP, +10% bonus AD), Shield: 20–80 (+25% AP, +40% bonus AD).',
+            'Arcane Comet': 'Damaging a champion with an ability hurls a comet at their location, dealing 30–100 (+20% AP, +35% bonus AD) adaptive damage. 20s cooldown, reduced by CDR and slows.',
+            'Phase Rush': 'Hitting a champion with 3 separate attacks or abilities within 4s grants 30–60% movement speed and 75% slow resistance for 3s (melee: 3s, ranged: 1.5s).',
+
+            # Sorcery Row 1
+            'Manaflow Band': 'Hitting an enemy champion with an ability permanently increases your maximum mana by 25, up to 250 mana. After reaching the cap, restore 1% missing mana every 5s.',
+            'Nimbus Cloak': 'After casting a Summoner Spell, gain 5%–25% movement speed for 2.5s based on cooldown. Grants ghosting and ignores unit collision.',
+            'Axiom Arcanist': 'Takedowns against champions refund 10% of your ultimate’s total cooldown and grant 5% increased damage for 10s.',
+
+            # Sorcery Row 2
+            'Transcendence': 'Gain 5 ability haste at level 5 and 10. At level 11, champion takedowns reduce your remaining basic ability cooldowns by 20%.',
+            'Celerity': 'All movement speed bonuses are 7% more effective, and you gain 1% bonus movement speed.',
+            'Absolute Focus': 'While above 70% health, gain 1.8–18 adaptive force (based on level).',
+
+            # Sorcery Row 3
+            'Scorch': 'Your first ability hit on an enemy champion burns them for 15–35 (+20% AP) bonus magic damage after 1s. 10s cooldown.',
+            'Waterwalking': 'Gain 25 movement speed and up to 18 adaptive force in the river, based on level.',
+            'Gathering Storm': 'Every 10 minutes, gain increasing adaptive force: +8/24/48/80/120/168 based on elapsed game time.',
+
+            # Resolve Keystones
+            'Grasp of the Undying': 'Every 4s in combat, your next attack on a champion deals bonus magic damage equal to 3% of your max HP, heals you, and permanently grants 5 HP.',
+            'Aftershock': 'After immobilizing an enemy, gain bonus armor and MR for 2.5s, then explode dealing magic damage to nearby enemies.',
+            'Guardian': 'If you or a nearby ally take damage, both gain a shield (70–150 +15% AP +9% bonus HP) for 1.5s. 70–40s cooldown.',
+
+            # Resolve Row 1
+            'Demolish': 'Charge up a powerful attack against a tower over 3s while within 600 range. The next attack deals 100 (+35% max HP) bonus physical damage.',
+            'Font of Life': 'Impairing the movement of an enemy marks them for 4s. Allied champions who attack marked enemies heal for 5 + 1% of your max HP.',
+            'Shield Bash': 'While shielded, gain 1–10 bonus armor and MR and your next basic attack deals bonus adaptive damage.',
+
+            # Resolve Row 2
+            'Conditioning': 'After 12 minutes, gain +9 bonus armor and MR and increase your total armor and MR by 4%.',
+            'Second Wind': 'After taking damage from an enemy champion, regenerate 6 + (4% missing health) over 10s.',
+            'Bone Plating': 'After taking damage from an enemy champion, the next 3 abilities or attacks deal 30–60 less damage. 55s cooldown.',
+
+            # Resolve Row 3
+            'Overgrowth': 'Gain 3 max HP for every 8 monsters or minions that die near you. At 120 stacks, gain an additional 3.5% max HP.',
+            'Revitalize': 'Heals and shields you cast or receive are 5% stronger and increased by up to 10% on targets below 40% HP.',
+            'Unflinching': 'Gain 10% Tenacity and Slow Resist. Gains up to 20% more based on missing HP.',
+
+            # Inspiration Keystones
+            'Glacial Augment': 'Immobilizing an enemy summons 3 glacial rays that slow enemies by 30–40% and reduce their damage dealt by 15% for 3s.',
+            'Unsealed Spellbook': 'Swap one Summoner Spell for another at the shop. After using 3 different spells, reduce its cooldown.',
+            'First Strike': 'Dealing damage to a champion before they damage you grants 5 gold and First Strike for 3s, causing you to deal 7% bonus damage and gain gold equal to that amount.',
+
+            # Inspiration Row 1
+            'Hextech Flashtraption': 'While Flash is on cooldown, it is replaced with Hexflash: channel for 2s to blink to a nearby location. 20s cooldown.',
+            'Magical Footwear': 'Gain free boots at 12 minutes, which grant +10 MS. Each takedown before reduces the timer by 45s.',
+            'Cash Back': 'Receive 100 gold back after buying your first legendary item.',
+
+            # Inspiration Row 2
+            'Biscuit Delivery': 'Gain a Total Biscuit of Everlasting Will every 2 mins until 6 mins. Consuming or selling a biscuit permanently increases mana cap and restores 10% missing health and mana.',
+            'Time Warp Tonic': 'Potions grant 30% of their health/mana instantly and give 5% bonus movement speed while active.',
+            'Triple Tonic': 'Receive a bonus potion at level 3, 6, and 9: Rejuvenation Tonic, Iron Tonic, and Elixir of Skill.',
+
+            # Inspiration Row 3
+            'Cosmic Insight': 'Gain +18 Summoner Spell Haste and +10 Item Haste.',
+            'Approach Velocity': 'Gain 7.5% bonus movement speed when moving toward an impaired enemy champion. Doubled if you applied the CC.',
+            'Jack of All Trades': 'Gain 5 adaptive force and 5 ability haste if you have at least 3 different stat bonuses from items.',
+            
+            # Stat Shards
+            # Offense (Tier 1)
+            'Adaptive Force': 'Gain +5.4 adaptive force (either Attack Damage or Ability Power based on which is higher).',
+            'Attack Speed': 'Gain +10% attack speed.',
+            'Ability Haste': 'Gain +8 ability haste.',
+            
+            # Flex (Tier 2)
+            'Movement Speed': 'Gain +2% bonus movement speed.',
+            'Health Scaling': 'Gain +10–180 bonus health based on champion level.',
+            
+            # Defense (Tier 3)
+            'Health': 'Gain +65 bonus health.',
+            'Tenacity and Slow Resist': 'Gain +10% tenacity and slow resist.',
         }
         
     def get_rune_description(self, rune_name: str) -> str:

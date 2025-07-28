@@ -22,7 +22,9 @@ class ImageLoader:
         for path in path_patterns:
             try:
                 if os.path.exists(path):
-                    img = Image.open(path).resize(size, Image.Resampling.LANCZOS)
+                    # Use faster NEAREST for smaller images to speed up loading
+                    resample = Image.Resampling.NEAREST if size[0] <= 50 else Image.Resampling.LANCZOS
+                    img = Image.open(path).resize(size, resample)
                     photo = ImageTk.PhotoImage(img)
                     self.image_cache[cache_key] = photo
                     return photo

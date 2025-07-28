@@ -14,9 +14,6 @@ class RuneView:
         self.tree_buttons: Dict[str, tk.Button] = {}
         self.rune_buttons: Dict[Tuple, tk.Button] = {}
         self.stat_buttons: Dict[Tuple, tk.Button] = {}
-        self.cached_rune_buttons: Dict[str, Dict] = {}
-        self.primary_tree_widgets: Dict[str, tk.Widget] = {}
-        self.secondary_tree_widgets: Dict[str, tk.Widget] = {}
         self._tooltips_enabled = True  # Performance control flag
         
         # Callbacks
@@ -37,9 +34,14 @@ class RuneView:
         content_frame = tk.Frame(rune_frame, bg=UIConstants.BACKGROUND_COLOR)
         content_frame.pack(fill='both', expand=True, padx=8, pady=4)
         
-        # Two-column layout
+        # Two-column layout using grid for consistent positioning
         columns_frame = tk.Frame(content_frame, bg=UIConstants.BACKGROUND_COLOR)
         columns_frame.pack(fill='both', expand=True)
+        
+        # Configure grid weights for balanced columns
+        columns_frame.grid_columnconfigure(0, weight=1)
+        columns_frame.grid_columnconfigure(1, weight=1)
+        columns_frame.grid_rowconfigure(0, weight=1)
         
         # Left column - Primary
         self._setup_primary_column(columns_frame)
@@ -50,11 +52,17 @@ class RuneView:
     def _setup_primary_column(self, parent: tk.Widget):
         """Setup primary rune selection column"""
         primary_column = tk.Frame(parent, bg=UIConstants.BACKGROUND_COLOR)
-        primary_column.pack(side='left', fill='both', expand=True, padx=(0, 8))
+        primary_column.grid(row=0, column=0, sticky='nsew', padx=(0, 8))
+        
+        # Configure grid weights for consistent positioning
+        primary_column.grid_rowconfigure(0, weight=0)  # Header
+        primary_column.grid_rowconfigure(1, weight=0)  # Tree selection
+        primary_column.grid_rowconfigure(2, weight=1)  # Runes area (expandable)
+        primary_column.grid_columnconfigure(0, weight=1)
         
         # Primary header
         primary_header = tk.Frame(primary_column, bg=UIConstants.BACKGROUND_COLOR)
-        primary_header.pack(fill='x', pady=(0, 8))
+        primary_header.grid(row=0, column=0, sticky='ew', pady=(0, 8))
         
         primary_label = tk.Label(primary_header, text="PRIMARY", 
                                 font=('Arial', 11, 'bold'), fg=UIConstants.TEXT_COLOR,
@@ -63,20 +71,28 @@ class RuneView:
         
         # Primary tree selection
         self.primary_tree_frame = tk.Frame(primary_column, bg=UIConstants.BACKGROUND_COLOR)
-        self.primary_tree_frame.pack(fill='x', pady=(0, 12))
+        self.primary_tree_frame.grid(row=1, column=0, sticky='ew', pady=(0, 12))
         
         # Primary runes container
         self.primary_runes_frame = tk.Frame(primary_column, bg=UIConstants.BACKGROUND_COLOR)
-        self.primary_runes_frame.pack(fill='both', expand=True)
+        self.primary_runes_frame.grid(row=2, column=0, sticky='nsew')
         
     def _setup_secondary_column(self, parent: tk.Widget):
         """Setup secondary rune selection column"""
         secondary_column = tk.Frame(parent, bg=UIConstants.BACKGROUND_COLOR)
-        secondary_column.pack(side='right', fill='both', expand=True, padx=(8, 0))
+        secondary_column.grid(row=0, column=1, sticky='nsew', padx=(8, 0))
+        
+        # Configure grid weights for consistent positioning
+        secondary_column.grid_rowconfigure(0, weight=0)  # Header
+        secondary_column.grid_rowconfigure(1, weight=0)  # Tree selection
+        secondary_column.grid_rowconfigure(2, weight=0)  # Runes area
+        secondary_column.grid_rowconfigure(3, weight=0)  # Shards header
+        secondary_column.grid_rowconfigure(4, weight=0)  # Shards
+        secondary_column.grid_columnconfigure(0, weight=1)
         
         # Secondary header
         secondary_header = tk.Frame(secondary_column, bg=UIConstants.BACKGROUND_COLOR)
-        secondary_header.pack(fill='x', pady=(0, 8))
+        secondary_header.grid(row=0, column=0, sticky='ew', pady=(0, 8))
         
         secondary_label = tk.Label(secondary_header, text="SECONDARY", 
                                   font=('Arial', 11, 'bold'), fg=UIConstants.TEXT_COLOR,
@@ -85,24 +101,25 @@ class RuneView:
         
         # Secondary tree selection
         self.secondary_tree_frame = tk.Frame(secondary_column, bg=UIConstants.BACKGROUND_COLOR)
-        self.secondary_tree_frame.pack(pady=(0, 12))
+        self.secondary_tree_frame.grid(row=1, column=0, sticky='', pady=(0, 12))  # Remove 'ew' to allow centering
         
-        # Secondary runes container
-        self.secondary_runes_frame = tk.Frame(secondary_column, bg=UIConstants.BACKGROUND_COLOR)
-        self.secondary_runes_frame.pack(fill='x', pady=(0, 12))
+        # Secondary runes container - fixed height to prevent shifting
+        self.secondary_runes_frame = tk.Frame(secondary_column, bg=UIConstants.BACKGROUND_COLOR, height=150)
+        self.secondary_runes_frame.grid(row=2, column=0, sticky='ew', pady=(0, 12))
+        self.secondary_runes_frame.grid_propagate(False)  # Maintain fixed height
         
         # Stat shards section
         shards_header = tk.Frame(secondary_column, bg=UIConstants.BACKGROUND_COLOR)
-        shards_header.pack(fill='x', pady=(0, 8))
+        shards_header.grid(row=3, column=0, sticky='ew', pady=(0, 8))
         
         stats_label = tk.Label(shards_header, text="SHARDS", 
                               font=('Arial', 11, 'bold'), fg=UIConstants.TEXT_COLOR,
                               bg=UIConstants.BACKGROUND_COLOR)
         stats_label.pack()
         
-        # Shards container
+        # Shards container - fixed position
         self.stats_frame = tk.Frame(secondary_column, bg=UIConstants.BACKGROUND_COLOR)
-        self.stats_frame.pack(fill='x')
+        self.stats_frame.grid(row=4, column=0, sticky='ew')
         
     def set_callbacks(self, on_tree_select: Callable, on_secondary_tree_select: Callable,
                      on_rune_select: Callable, on_stat_shard_select: Callable, 
@@ -119,21 +136,31 @@ class RuneView:
         self.rune_data_model = rune_data_model
         
     def create_tree_buttons(self, rune_trees: Dict):
-        """Create rune tree selection buttons"""
+        """Create rune tree selection buttons with icons"""
         tree_frame = tk.Frame(self.primary_tree_frame, bg=UIConstants.BACKGROUND_COLOR)
         tree_frame.pack()
         
         for i, (tree_name, tree_data) in enumerate(rune_trees.items()):
-            tree_icon = self.image_loader.load_tree_icon(tree_name, tree_data['color'], size=UIConstants.TREE_ICON_SIZE)
+            # Create button with icon immediately
+            try:
+                tree_icon = self.image_loader.load_tree_icon(tree_name, tree_data['color'], size=UIConstants.TREE_ICON_SIZE)
+                btn = tk.Button(tree_frame, image=tree_icon,
+                               bg=tree_data['color'], fg=UIConstants.BUTTON_SELECTED_FG,
+                               width=UIConstants.TREE_BUTTON_SIZE[0], 
+                               height=UIConstants.TREE_BUTTON_SIZE[1],
+                               command=lambda t=tree_name: self._on_tree_clicked(t))
+                btn.image = tree_icon
+            except:
+                # Fallback to text only if icon fails
+                btn = tk.Button(tree_frame, text=tree_name[:3], 
+                               font=('Arial', 8, 'bold'),
+                               bg=tree_data['color'], fg=UIConstants.BUTTON_SELECTED_FG,
+                               width=UIConstants.TREE_BUTTON_SIZE[0], 
+                               height=UIConstants.TREE_BUTTON_SIZE[1],
+                               command=lambda t=tree_name: self._on_tree_clicked(t))
+            # Add tooltip for tree button
+            self._add_tree_tooltip(btn, tree_name)
             
-            btn = tk.Button(tree_frame, image=tree_icon, text=tree_name, 
-                           font=('Arial', UIConstants.FONT_SIZE_TREE_BUTTON, 'bold'), compound='top',
-                           bg=tree_data['color'], fg=UIConstants.BUTTON_SELECTED_FG,
-                           width=UIConstants.TREE_BUTTON_SIZE[0], 
-                           height=UIConstants.TREE_BUTTON_SIZE[1], 
-                           wraplength=UIConstants.TREE_BUTTON_WRAP_LENGTH,
-                           command=lambda t=tree_name: self._on_tree_clicked(t))
-            btn.image = tree_icon
             btn.grid(row=0, column=i, padx=UIConstants.TREE_BUTTON_PADDING)
             self.tree_buttons[tree_name] = btn
             
@@ -210,7 +237,7 @@ class RuneView:
                 btn.grid(row=0, column=j, padx=2)
                 tree_buttons[(f'primary_{row}', rune)] = btn
         
-        self.cached_rune_buttons[f'primary_{tree_name}'] = tree_buttons
+        return tree_buttons
         
     def _build_secondary_tree_content(self, parent_widget: tk.Widget, tree_name: str, tree_data: Dict):
         """Build secondary tree content in the specified widget"""
@@ -236,7 +263,7 @@ class RuneView:
                 btn.grid(row=0, column=j, padx=1)
                 tree_buttons[(f'secondary_{row}', rune)] = btn
         
-        self.cached_rune_buttons[f'secondary_{tree_name}'] = tree_buttons
+        return tree_buttons
         
     def _create_rune_button(self, parent: tk.Widget, item_name: str, image, button_config: Dict, command: Callable, rune_type: str = None) -> tk.Button:
         """Helper method to create rune buttons with consistent styling"""
@@ -272,7 +299,7 @@ class RuneView:
             cleanup_tooltip()
             
             # Delay tooltip creation to prevent rapid showing/hiding
-            widget.tooltip_timer = widget.master.after(500, lambda: show_tooltip(event))
+            widget.tooltip_timer = widget.master.after(100, lambda: show_tooltip(event))
             
         def show_tooltip(event):
             try:
@@ -347,24 +374,21 @@ class RuneView:
                 btn.configure(relief='raised', bg=tree_color, bd=2)
                 
     def display_primary_runes(self, tree_name: str):
-        """Display runes for selected primary tree using cached widgets"""
-        # Hide all primary tree widgets
-        for widget in self.primary_tree_widgets.values():
-            widget.pack_forget()
+        """Display runes for selected primary tree"""
+        # Clear existing primary runes
+        for widget in self.primary_runes_frame.winfo_children():
+            widget.destroy()
         
         # Clear old button references
         self.rune_buttons = {k: v for k, v in self.rune_buttons.items() 
                             if not k[0].startswith(('keystone', 'primary_'))}
         
-        if not tree_name:
+        if not tree_name or tree_name not in self.rune_data_model.rune_trees:
             return
         
-        # Show the cached widget for selected tree
-        widget = self.primary_tree_widgets[tree_name]
-        widget.pack(fill='both', expand=True)
-        
-        # Restore button references for this tree
-        tree_buttons = self.cached_rune_buttons[f'primary_{tree_name}']
+        # Create new widgets for the selected tree
+        tree_data = self.rune_data_model.rune_trees[tree_name]
+        tree_buttons = self._build_primary_tree_content(self.primary_runes_frame, tree_name, tree_data)
         self.rune_buttons.update(tree_buttons)
         
     def update_secondary_tree_options(self, all_trees: List[str], selected_primary_tree: str, tree_colors: Dict):
@@ -373,42 +397,106 @@ class RuneView:
         for widget in self.secondary_tree_frame.winfo_children():
             widget.destroy()
         
-        # Filter out the primary tree from available secondary trees
-        available_trees = [tree for tree in all_trees if tree != selected_primary_tree]
-        
-        for i, tree_name in enumerate(available_trees):
-            btn = tk.Button(self.secondary_tree_frame, text=tree_name,
-                           font=('Arial', 9, 'bold'), wraplength=70,
-                           width=10, height=2,
-                           bg=tree_colors[tree_name], fg=UIConstants.BUTTON_SELECTED_FG,
+        if selected_primary_tree is None:
+            # No primary tree selected - show all trees
+            for i, tree_name in enumerate(all_trees):
+                btn = self._create_secondary_tree_button(tree_name, tree_colors[tree_name])
+                btn.grid(row=0, column=i, padx=2, pady=2)
+        else:
+            # Primary tree selected - filter out the selected primary tree
+            available_trees = [tree for tree in all_trees if tree != selected_primary_tree]
+            
+            # Place selectable trees in available positions
+            for i, tree_name in enumerate(available_trees):
+                btn = self._create_secondary_tree_button(tree_name, tree_colors[tree_name])
+                btn.grid(row=0, column=i, padx=2, pady=2)
+            
+    def _create_secondary_tree_button(self, tree_name: str, tree_color: str) -> tk.Button:
+        """Create a secondary tree button with icon and tooltip"""
+        try:
+            # Load tree icon
+            tree_icon = self.image_loader.load_tree_icon(tree_name, tree_color, size=(24, 24))
+            btn = tk.Button(self.secondary_tree_frame, image=tree_icon,
+                           width=40, height=40,
+                           bg=tree_color, fg=UIConstants.BUTTON_SELECTED_FG,
                            command=lambda t=tree_name: self._on_secondary_tree_clicked(t))
+            btn.image = tree_icon  # Keep reference
+        except:
+            # Fallback to text if icon fails
+            btn = tk.Button(self.secondary_tree_frame, text=tree_name[:3],
+                           font=('Arial', 8, 'bold'),
+                           width=5, height=2,
+                           bg=tree_color, fg=UIConstants.BUTTON_SELECTED_FG,
+                           command=lambda t=tree_name: self._on_secondary_tree_clicked(t))
+        
+        # Add tooltip
+        self._add_tree_tooltip(btn, tree_name)
+        return btn
+    
+    def _add_tree_tooltip(self, widget: tk.Widget, tree_name: str):
+        """Add tooltip to tree button"""
+        def show_tooltip(event):
+            tooltip = tk.Toplevel()
+            tooltip.wm_overrideredirect(True)
+            tooltip.configure(bg=UIConstants.TOOLTIP_BG)
             
-            btn.grid(row=0, column=i, padx=2, pady=2)
+            # Title
+            title_label = tk.Label(tooltip, text=tree_name,
+                                 font=('Arial', 11, 'bold'), 
+                                 fg=UIConstants.BACKGROUND_COLOR, 
+                                 bg=UIConstants.TOOLTIP_BG)
+            title_label.pack(padx=5, pady=(5, 0))
             
+            # Description
+            if hasattr(self, 'rune_data_model') and self.rune_data_model:
+                description = self.rune_data_model.get_tree_description(tree_name)
+                desc_label = tk.Label(tooltip, text=description,
+                                    font=('Arial', 10), 
+                                    fg=UIConstants.BACKGROUND_COLOR, 
+                                    bg=UIConstants.TOOLTIP_BG,
+                                    wraplength=250, justify='left')
+                desc_label.pack(padx=5, pady=(0, 5))
+            
+            # Position tooltip
+            x = event.x_root + 10
+            y = event.y_root - 30
+            tooltip.geometry(f"+{x}+{y}")
+            
+            # Store tooltip reference
+            widget.tooltip = tooltip
+        
+        def hide_tooltip(event):
+            if hasattr(widget, 'tooltip'):
+                try:
+                    widget.tooltip.destroy()
+                except:
+                    pass
+                delattr(widget, 'tooltip')
+        
+        widget.bind('<Enter>', show_tooltip)
+        widget.bind('<Leave>', hide_tooltip)
+    
     def _on_secondary_tree_clicked(self, tree_name: str):
         """Handle secondary tree button click"""
         if self.on_secondary_tree_select:
             self.on_secondary_tree_select(tree_name)
             
     def display_secondary_runes(self, tree_name: str):
-        """Display secondary tree runes using cached widgets"""
-        # Hide all secondary tree widgets
-        for widget in self.secondary_tree_widgets.values():
-            widget.pack_forget()
+        """Display secondary tree runes"""
+        # Clear existing secondary runes
+        for widget in self.secondary_runes_frame.winfo_children():
+            widget.destroy()
         
         # Clear old button references
         self.rune_buttons = {k: v for k, v in self.rune_buttons.items() 
                             if not k[0].startswith('secondary_')}
         
-        if not tree_name:
+        if not tree_name or tree_name not in self.rune_data_model.rune_trees:
             return
         
-        # Show the cached widget for selected tree
-        widget = self.secondary_tree_widgets[tree_name]
-        widget.pack(fill='x', pady=(0, 12))
-        
-        # Restore button references for this tree
-        tree_buttons = self.cached_rune_buttons[f'secondary_{tree_name}']
+        # Create new widgets for the selected tree
+        tree_data = self.rune_data_model.rune_trees[tree_name]
+        tree_buttons = self._build_secondary_tree_content(self.secondary_runes_frame, tree_name, tree_data)
         self.rune_buttons.update(tree_buttons)
         
     def update_button_visuals(self, button_dict: Dict, selected_items: set, category_filter: List = None, rune_states: Dict = None):

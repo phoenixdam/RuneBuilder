@@ -18,13 +18,18 @@ class ChampionModel:
         # Get existing champions to avoid duplicates
         existing_champions = self.get_existing_champion_names()
         
-        # Process all champion image files
+        # Collect new champions to add in batch
+        new_champions = []
         for filename in os.listdir(champions_dir):
             if filename.endswith('.png') and filename.startswith('42px-'):
                 champion_name = self._extract_champion_name_from_file(filename)
                 if champion_name and champion_name not in existing_champions:
                     image_path = os.path.join(champions_dir, filename)
-                    self.add_champion(champion_name, image_path)
+                    new_champions.append((champion_name, image_path))
+                    
+        # Batch insert new champions
+        if new_champions:
+            self._batch_add_champions(new_champions)
                     
     def _extract_champion_name_from_file(self, filename: str) -> Optional[str]:
         """Extract champion name from filename and normalize it"""
@@ -38,6 +43,9 @@ class ChampionModel:
         
     def _normalize_champion_name(self, champion_name: str) -> str:
         """Normalize champion names for special cases"""
+        # Always strip whitespace first
+        champion_name = champion_name.strip()
+        
         champion_fixes = {
             "Cho'Gath": "Cho'Gath", "Dr. Mundo": "Dr. Mundo", "Jarvan IV": "Jarvan IV",
             "Master Yi": "Master Yi", "Miss Fortune": "Miss Fortune", "Aurelion Sol": "Aurelion Sol",
@@ -81,3 +89,22 @@ class ChampionModel:
             "SELECT id, name, image_path FROM champions WHERE name LIKE ? ORDER BY name",
             (f"%{search_term}%",), fetch_all=True
         )
+        
+    def _batch_add_champions(self, champions: List[Tuple]) -> None:
+        """Add multiple champions in a single transaction"""
+        if not champions:
+            return
+            
+        try:
+            # Use executemany for batch insert
+            self.db_model.execute_query(
+                "INSERT INTO champions (name, image_path) VALUES (?, ?)",
+                champions, executemany=True
+            )
+        except Exception as e:
+            # Fallback to individual inserts if batch fails
+            for name, image_path in champions:
+                try:
+                    self.add_champion(name, image_path)
+                except:
+                    continue  # Skip duplicates or errors

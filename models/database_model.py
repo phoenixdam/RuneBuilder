@@ -68,13 +68,16 @@ class DatabaseModel:
         conn.commit()
         conn.close()
         
-    def execute_query(self, query: str, params: Tuple = (), fetch_one: bool = False, fetch_all: bool = False) -> Any:
+    def execute_query(self, query: str, params: Tuple = (), fetch_one: bool = False, fetch_all: bool = False, executemany: bool = False) -> Any:
         """Execute database query with consistent connection handling"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
         try:
-            cursor.execute(query, params)
+            if executemany:
+                cursor.executemany(query, params)
+            else:
+                cursor.execute(query, params)
             
             if fetch_one:
                 result = cursor.fetchone()

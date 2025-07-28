@@ -35,8 +35,11 @@ class RuneState:
         }
         
     def set_champion(self, champion_id: int, champion_name: str):
-        """Set the selected champion"""
-        self.selected_champion = {'id': champion_id, 'name': champion_name}
+        """Set the selected champion or clear selection if None"""
+        if champion_id is None or champion_name is None:
+            self.selected_champion = None
+        else:
+            self.selected_champion = {'id': champion_id, 'name': champion_name}
         
     def set_primary_tree(self, tree_name: str):
         """Set the primary tree and clear conflicting selections"""

@@ -35,11 +35,11 @@ class RuneController:
         # Create stat shards
         self.rune_view.create_stat_shards(self.rune_data_model.stat_shards)
         
-        # Preload rune widgets
-        self.rune_view.preload_rune_widgets(self.rune_data_model.rune_trees)
-        
         # Update secondary tree options
         self.update_secondary_tree_options()
+        
+        # Schedule preloading in background to not block startup
+        self._schedule_preloading()
         
     def on_primary_tree_selected(self, tree_name: str):
         """Handle primary tree selection"""
@@ -298,3 +298,17 @@ class RuneController:
         """Clear all selected runes"""
         self.rune_state.clear_all()
         self.rune_view.clear_all_runes()
+        
+        # Reset tree visual selection to show no selection with proper colors
+        tree_colors = {name: data['color'] for name, data in self.rune_data_model.rune_trees.items()}
+        self.rune_view.update_tree_selection_visual(None, tree_colors)
+        
+        # Update secondary tree options to show all available trees (no primary tree selected)
+        all_trees = self.rune_data_model.get_tree_names()
+        tree_colors = {name: data['color'] for name, data in self.rune_data_model.rune_trees.items()}
+        self.rune_view.update_secondary_tree_options(all_trees, None, tree_colors)
+        
+    def _schedule_preloading(self):
+        """Schedule rune widget preloading to run after startup"""
+        # Disable preloading completely for now to avoid any startup interference
+        pass

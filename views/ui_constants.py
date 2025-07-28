@@ -3,7 +3,7 @@ class UIConstants:
     
     # Main window
     WINDOW_WIDTH = 1100
-    WINDOW_HEIGHT = 700
+    WINDOW_HEIGHT = 750
     
     # Champion display
     CHAMPION_IMAGE_SIZE = (40, 40)
@@ -37,11 +37,11 @@ class UIConstants:
     SECONDARY_RUNE_PADDING = 1
     SECONDARY_RUNE_WRAP_LENGTH = 100
     
-    # Stat shards
-    STAT_SHARD_IMAGE_SIZE = (20, 20)
-    STAT_SHARD_BUTTON_SIZE = (100, 60)
+    # Stat shards - using original 30px resolution
+    STAT_SHARD_IMAGE_SIZE = (30, 30)
+    STAT_SHARD_BUTTON_SIZE = (110, 70)
     STAT_SHARD_PADDING = 1
-    STAT_SHARD_WRAP_LENGTH = 100
+    STAT_SHARD_WRAP_LENGTH = 105
     
     # Saved rune pages
     RUNE_PAGE_ICON_SIZE = (32, 32)
