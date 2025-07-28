@@ -19,16 +19,20 @@ class ImageLoader:
             return self.image_cache[cache_key]
             
         # Try to load from each possible path
+        # Always resolve paths relative to the project root (where this file is located)
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         for path in path_patterns:
+            abs_path = path
+            if not os.path.isabs(path):
+                abs_path = os.path.join(project_root, path)
             try:
-                if os.path.exists(path):
-                    # Use faster NEAREST for smaller images to speed up loading
+                if os.path.exists(abs_path):
                     resample = Image.Resampling.NEAREST if size[0] <= 50 else Image.Resampling.LANCZOS
-                    img = Image.open(path).resize(size, resample)
+                    img = Image.open(abs_path).resize(size, resample)
                     photo = ImageTk.PhotoImage(img)
                     self.image_cache[cache_key] = photo
                     return photo
-            except Exception:
+            except Exception as e:
                 continue
         
         # Create placeholder if no image found

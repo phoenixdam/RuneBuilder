@@ -207,6 +207,12 @@ class MainController:
             
     def initialize(self):
         """Initialize the application"""
+        # Populate champions from files if database is empty
+        champions_data = self.champion_model.get_champions_with_rune_counts()
+        if not champions_data:
+            champions_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'champion_icons')
+            print(f"[MainController] Populating champions from: {champions_dir}")
+            self.champion_model.populate_champions_from_files(champions_dir)
         # Initialize all controllers
         self.champion_controller.initialize()
         self.rune_controller.initialize()

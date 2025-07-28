@@ -24,8 +24,9 @@ class ChampionModel:
             if filename.endswith('.png') and filename.startswith('42px-'):
                 champion_name = self._extract_champion_name_from_file(filename)
                 if champion_name and champion_name not in existing_champions:
-                    image_path = os.path.join(champions_dir, filename)
-                    new_champions.append((champion_name, image_path))
+                    # Always store the path relative to the project root (e.g., data/champion_icons/42px-Name_OriginalSquare.png)
+                    rel_path = os.path.join('data', 'champion_icons', filename)
+                    new_champions.append((champion_name, rel_path))
                     
         # Batch insert new champions
         if new_champions:
