@@ -7,7 +7,11 @@
       "Bash(mv:*)",
       "Bash(cp:*)",
       "Bash(ls:*)",
-      "WebFetch(domain:wiki.leagueoflegends.com)"
+      "WebFetch(domain:wiki.leagueoflegends.com)",
+      "Bash(timeout:*)",
+      "Bash(sqlite3:*)",
+      "Bash(grep:*)",
+      "Bash(del test_autocomplete.py)"
     ],
     "deny": []
   }
