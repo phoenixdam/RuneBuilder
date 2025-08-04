@@ -109,3 +109,10 @@ class ChampionModel:
                     self.add_champion(name, image_path)
                 except:
                     continue  # Skip duplicates or errors
+
+    def delete_champion(self, champion_id: int) -> None:
+        """Delete a champion by ID"""
+        self.db_model.execute_query(
+            "DELETE FROM champions WHERE id = ?",
+            (champion_id,)
+        )
